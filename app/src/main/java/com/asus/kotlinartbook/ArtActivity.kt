@@ -155,6 +155,33 @@ class ArtActivity : AppCompatActivity() {
 
 
 
+    fun makeSmallerBitmap(image : Bitmap , maximumSize : Int) : Bitmap {
+
+        var width = image.width
+        var height = image.height
+
+        val bitmapRatio : Double = width.toDouble() / height.toDouble()
+
+        if(bitmapRatio>1){
+            // landscape image or horizontal image
+
+            width = maximumSize
+            height = (width / bitmapRatio).toInt()
+
+        }else{
+            // partrait image or vertical image
+
+            height = maximumSize
+            width = (height * bitmapRatio).toInt()
+
+        }
+
+        return Bitmap.createScaledBitmap(image,width,height,true)
+
+    }
+
+
+
 
 
 }
