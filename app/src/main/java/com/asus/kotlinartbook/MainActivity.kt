@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         // ArtActivity sayfasına gidecek  intent ile
 
         if(item.itemId == R.id.addArt){
-            
+
             val intent = Intent(this@MainActivity,ArtActivity::class.java)
             startActivity(intent)
         }
