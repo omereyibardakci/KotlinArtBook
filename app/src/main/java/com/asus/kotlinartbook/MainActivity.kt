@@ -1,15 +1,22 @@
 package com.asus.kotlinartbook
 
 import android.content.Intent
+import android.database.sqlite.SQLiteDatabase
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.asus.kotlinartbook.databinding.ActivityMainBinding
+import java.lang.Exception
 
 
 private lateinit var binding: ActivityMainBinding
+
+private lateinit var databaese : SQLiteDatabase
+private lateinit var artArrayList: ArrayList<Art>
+private lateinit var artAdapter: ArtAdapter
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,9 +25,61 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        // initialize
+        artArrayList = ArrayList<Art>()
+
+
+
+        // RecyclerView
+
+        binding.recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
+        artAdapter = ArtAdapter(artArrayList)
+        binding.recyclerView.adapter = artAdapter
+
+
+
+
+
+        try {
+
+            databaese = this.openOrCreateDatabase("ART", MODE_PRIVATE,null)
+
+            val cursor = databaese.rawQuery("SELECT * FROM Art",null)
+            val artIdIndex = cursor.getColumnIndex("id")
+            val artNameIndex = cursor.getColumnIndex("artName")
+
+            while (cursor.moveToNext()){
+
+                val id = cursor.getInt(artIdIndex)
+                val name = cursor.getString(artNameIndex)
+
+                val art = Art(id,name)
+                artArrayList.add(art)
+
+
+            }
+
+            cursor.close()
+
+
+        }catch (e : Exception){
+            e.printStackTrace()
+        }
+
+
+
+
+
+
 
 
     }
+
+
+
+
+
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
 
