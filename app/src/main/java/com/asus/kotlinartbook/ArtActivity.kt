@@ -2,8 +2,10 @@ package com.asus.kotlinartbook
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.os.Build
@@ -19,6 +21,7 @@ import androidx.core.content.ContextCompat
 import com.asus.kotlinartbook.databinding.ActivityArtBinding
 import com.asus.kotlinartbook.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
+import java.io.ByteArrayOutputStream
 import java.lang.Exception
 
 
@@ -29,12 +32,16 @@ private lateinit var permissionLauncher: ActivityResultLauncher<String>
 
 var selectedBitmap : Bitmap? = null
 
+private lateinit var database : SQLiteDatabase
+
 class ArtActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityArtBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        database = this.openOrCreateDatabase("ART",Context.MODE_PRIVATE,null)
 
         registerLauncher()
 
@@ -43,6 +50,56 @@ class ArtActivity : AppCompatActivity() {
 
 
     fun save (view : View){
+
+        val artName = binding.editTextArtName.text.toString()
+        val artistName = binding.editTextArtistName.text.toString()
+        val year = binding.editTextYear.text.toString()
+
+        if(selectedBitmap != null){
+
+            val smallBitmap = makeSmallerBitmap(selectedBitmap!!,300)
+
+            // Saved as SQL by converting it into smallBitmap Byte Array.
+            // smallBitmap'i ByteArray haline çevirerek  SQL' kaydedicez.
+
+            val outputStream = ByteArrayOutputStream()
+            smallBitmap.compress(Bitmap.CompressFormat.PNG,50,outputStream)
+            val byteArray = outputStream.toByteArray()
+
+
+            try {
+
+                database.execSQL("CREATE TABLE IF NOT EXISTS Art(id INTEGER PRIMARY KEY,artName VARCHAR, artistName VARCHAR, year VARCHAR, image BLOB)")
+
+                val sqlString = "INSERT INTO Art (artName, artistName, year, image) VALUES (?, ?, ?, ?)"
+                val statement = database.compileStatement(sqlString)
+                statement.bindString(1,artName)
+                statement.bindString(2,artistName)
+                statement.bindString(3,year)
+                statement.bindBlob(4,byteArray)
+
+                statement.execute()
+
+
+            }catch (e : Exception){
+                e.printStackTrace()
+            }
+
+
+            val intent = Intent(this@ArtActivity,MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)         // Closes previously opened activities.
+            startActivity(intent)
+
+
+
+
+        }else{
+            Toast.makeText(this@ArtActivity,"Please choose a image",Toast.LENGTH_LONG).show()
+        }
+
+
+
+
 
     }
 
