@@ -1,7 +1,7 @@
 package com.asus.kotlinartbook
 
+import android.content.Intent
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.asus.kotlinartbook.databinding.RecyclerRowBinding
@@ -28,6 +28,15 @@ class ArtAdapter(val artArrayList: ArrayList<Art>): RecyclerView.Adapter<ArtAdap
     override fun onBindViewHolder(holder: ArtHolder, position: Int) {
 
         holder.binding.recyclerViewTextView.text = artArrayList.get(position).name
+
+        // it will be shown when you click on recyclerView
+        // recyclerView'da  tıklayınca kaydedilmiş verileri göstermek için
+        holder.itemView.setOnClickListener {
+            val intent = Intent(holder.itemView.context, ArtActivity::class.java)
+            intent.putExtra("info", "old")
+            intent.putExtra("id",artArrayList[position].id)
+            holder.itemView.context.startActivity(intent)
+        }
 
 
     }

@@ -2,11 +2,10 @@ package com.asus.kotlinartbook
 
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.asus.kotlinartbook.databinding.ActivityMainBinding
 import java.lang.Exception
@@ -53,11 +52,12 @@ class MainActivity : AppCompatActivity() {
                 val id = cursor.getInt(artIdIndex)
                 val name = cursor.getString(artNameIndex)
 
-                val art = Art(id,name)
+                val art = Art(id, name)
                 artArrayList.add(art)
 
 
             }
+            artAdapter.notifyDataSetChanged()     // SO IMPORTANT !!!
 
             cursor.close()
 
@@ -65,12 +65,6 @@ class MainActivity : AppCompatActivity() {
         }catch (e : Exception){
             e.printStackTrace()
         }
-
-
-
-
-
-
 
 
     }
@@ -98,7 +92,9 @@ class MainActivity : AppCompatActivity() {
 
         if(item.itemId == R.id.addArt){
 
-            val intent = Intent(this@MainActivity,ArtActivity::class.java)
+            val intent = Intent(this@MainActivity, ArtActivity::class.java)
+
+            intent.putExtra("info","new")
             startActivity(intent)
         }
 

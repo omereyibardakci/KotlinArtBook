@@ -1,12 +1,12 @@
 package com.asus.kotlinartbook
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.asus.kotlinartbook.databinding.ActivityArtBinding
-import com.asus.kotlinartbook.databinding.ActivityMainBinding
+import com.asus.kotlinartbook.MainActivity
 import com.google.android.material.snackbar.Snackbar
 import java.io.ByteArrayOutputStream
 import java.lang.Exception
@@ -44,6 +44,41 @@ class ArtActivity : AppCompatActivity() {
         database = this.openOrCreateDatabase("ART",Context.MODE_PRIVATE,null)
 
         registerLauncher()
+
+
+        val intent = intent
+        val info = intent.getStringExtra("info")
+
+        if(info.equals("new")){
+            binding.button.visibility = View.VISIBLE
+
+        }else{
+
+            binding.button.visibility = View.INVISIBLE
+
+            val selectedId = intent.getIntExtra("id",1)
+
+            val cursor = database.rawQuery("SELECT * FROM Art WHERE id = ?", arrayOf(selectedId.toString()))
+
+            val artNameIndex = cursor.getColumnIndex("artName")
+            val artistNameIndex = cursor.getColumnIndex("artistName")
+            val yearIndex = cursor.getColumnIndex("year")
+            val imageIndex = cursor.getColumnIndex("image")
+
+            while (cursor.moveToNext()){
+                binding.editTextArtName.setText(cursor.getString(artNameIndex))
+                binding.editTextArtistName.setText(cursor.getString(artistNameIndex))
+                binding.editTextYear.setText(cursor.getString(yearIndex))
+
+                val byteArray = cursor.getBlob(imageIndex)
+                val bitmap = BitmapFactory.decodeByteArray(byteArray,0,byteArray.size)
+                binding.imageView.setImageBitmap(bitmap)
+
+            }
+            cursor.close()
+
+        }
+
 
     }
 
@@ -86,7 +121,7 @@ class ArtActivity : AppCompatActivity() {
             }
 
 
-            val intent = Intent(this@ArtActivity,MainActivity::class.java)
+            val intent = Intent(this@ArtActivity, MainActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)         // Closes previously opened activities.
             startActivity(intent)
 
